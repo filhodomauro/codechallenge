@@ -17,30 +17,37 @@ import com.brasilct.repository.type.Cardinals;
 public abstract class StationsNavigator extends DefaultNavigator<Stations, StationsSuccessWay>{
 	
 	private UndergroundRepository repository;
-	private List<Routes> routes;
+	private List<Routes> futureRoutes;
+	private List<Routes> pastRoutes;
+	private List<Stations> integrations;
 	private Routes currentRoute;
 	private int integrationsQuantity = 0;
 	
 	public StationsNavigator(UndergroundRepository repository, List<Routes> routes) {
 		super();
 		this.repository = repository;
-		this.routes = routes;
-		this.currentRoute = routes.get(0);
+		this.futureRoutes = routes;
+		this.pastRoutes = new LinkedList<Routes>();
+		this.integrations = new LinkedList<Stations>();
+		goToNextRoute();
 	}
 
 	@Override
 	protected void addStep(Stations step, Stations previous) {
 		super.addStep(step, previous);
 		if(isIntegration(step, previous)){
+			integrations.add(step);
 			integrationsQuantity++;
+			goToNextRoute();
 		}
 	}
 	
 	@Override
 	protected void back(Stations from, Stations previous) {
 		super.back(from, previous);
-		if(isIntegration(from, previous)){
+		if(previous != null && integrations.remove(from)){
 			integrationsQuantity--;
+			goToPreviousRoute();
 		}
 	}
 	
@@ -51,7 +58,9 @@ public abstract class StationsNavigator extends DefaultNavigator<Stations, Stati
 
 	@Override
 	protected List<Stations> getConnections(Stations base, Stations target) {
-		return repository.findStationConnections(base, getTargetCardinalsReference(base, target));
+		List<Stations> connections = repository.findStationConnections(base, getTargetCardinalsReference(base, target));
+		connections.removeAll(currentWay);
+		return connections;
 	}
 	
 	@Override
@@ -67,7 +76,7 @@ public abstract class StationsNavigator extends DefaultNavigator<Stations, Stati
 			}
 			
 			Routes nextRoute = routes.get(0);
-			if(!this.routes.contains(nextRoute)){
+			if(!this.futureRoutes.contains(nextRoute)){
 				return true;
 			}
 		}
@@ -75,22 +84,26 @@ public abstract class StationsNavigator extends DefaultNavigator<Stations, Stati
 		return false;
 	}
 	
-	private void changeRoute(){
-		this.currentRoute = this.routes.get(0);
+	private void goToNextRoute(){
+		this.pastRoutes.add(currentRoute);
+		this.currentRoute = this.futureRoutes.remove(0);
 	}
 	
+	private void goToPreviousRoute(){
+		this.futureRoutes.add(currentRoute);
+		this.currentRoute = this.pastRoutes.remove(this.pastRoutes.size() -1);
+	}
 	private boolean isIntegration(Stations next, Stations previous){
-		if(previous != null && previous.getTotalLines() > 0){
-			if(!isSameLine(next, previous)){
-				changeRoute();
+		if(previous != null && previous.getTotalLines() > 1){
+			if(!belongsToCurrentRoute(next)){
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	private boolean isSameLine(Stations next, Stations previous){
-		List<Routes> routesNext = repository.findRoutesByStation(next);
+	private boolean belongsToCurrentRoute(Stations step){
+		List<Routes> routesNext = repository.findRoutesByStation(step);
 		if(routesNext.contains(this.currentRoute)){
 			return true;
 		}

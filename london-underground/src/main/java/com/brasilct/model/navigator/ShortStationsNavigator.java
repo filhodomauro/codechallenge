@@ -17,8 +17,9 @@ public class ShortStationsNavigator extends StationsNavigator {
 	
 	private StationsSuccessWay shortWay;
 
-	public ShortStationsNavigator(UndergroundRepository repository, List<Routes> routes) {
+	public ShortStationsNavigator(UndergroundRepository repository, List<Routes> routes, StationsSuccessWay shortWay) {
 		super(repository, routes);
+		this.shortWay = shortWay;
 	}
 	
 	@Override

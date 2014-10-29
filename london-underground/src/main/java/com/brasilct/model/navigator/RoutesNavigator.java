@@ -35,12 +35,13 @@ public class RoutesNavigator extends DefaultNavigator<Routes, RoutesSuccessWay> 
 	protected List<Routes> getConnections(Routes base, Routes target) {
 		List<Routes> connections = null;	
 		if(this.integrations.containsKey(base)){
-			connections = this.integrations.get(base);
+			connections = new LinkedList<Routes>(this.integrations.get(base));
 		} else {
 			LinesIntegration integrations = repository.findIntegrationsByRoute(base);
 			connections = repository.findRoutesByIds(integrations.getLines());
 			this.integrations.put(base, connections);
 		}
+		connections.removeAll(currentWay);		
 		return connections;
 	}
 }

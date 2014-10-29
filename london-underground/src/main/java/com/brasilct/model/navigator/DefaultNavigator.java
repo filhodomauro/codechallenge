@@ -37,7 +37,6 @@ public abstract class DefaultNavigator<T,K extends SuccessWay<?>> implements Nav
 		return this.ways;
 	}
 	protected void go(T from, T previous, T to){
-		LOG.info("GO from -> {}", from);
 		addStep(from, previous);
 		if(from.equals(to)){
 			found(from);
@@ -45,12 +44,11 @@ public abstract class DefaultNavigator<T,K extends SuccessWay<?>> implements Nav
 			if(canContinue()){
 				List<T> connections = getConnections(from, to);
 				if(connections.contains(to)){
-					go(connections.get(connections.indexOf(to)), from, to);
-				} else {
-					for(T connection : connections){
-						if(!skip(connection, from)){
-							go(connection, from, to);
-						}
+					go(connections.remove(connections.indexOf(to)), from, to);
+				} 
+				for(T connection : connections){
+					if(!skip(connection, from)){
+						go(connection, from, to);
 					}
 				}
 			}

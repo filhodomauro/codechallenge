@@ -46,9 +46,11 @@ public class UndergroundController {
 	
 	@RequestMapping("/bestRoute/{from}/{to}")
 	public List<StationResult> findBestRoute(@PathVariable String from, @PathVariable String to){
+		LOG.info("Chamada /bestRoute acionada");
 		Integer idFrom = Integer.valueOf(from);
 		Integer idTo = Integer.valueOf(to);
 		SuccessWay<Stations> way = service.findShortWay(idFrom, idTo);
+		LOG.info("Chamada /bestRoute finalizada");
 		return toResults(way.getWays());
 	}
 	
@@ -57,6 +59,7 @@ public class UndergroundController {
 									@PathVariable String to, 
 									@PathVariable Integer stationTime,
 									@PathVariable Integer integrationTime){
+		LOG.info("Chamada /bestRouteTime acionada");
 		Integer idFrom = Integer.valueOf(from);
 		Integer idTo = Integer.valueOf(to);
 		if(stationTime == null){
@@ -66,7 +69,9 @@ public class UndergroundController {
 		if(integrationTime == null){
 			integrationTime = DEFAULT_INTEGRATION_TIME;
 		}
-		return toResults(service.getDuration(idFrom, idTo, stationTime, integrationTime));
+		Integer duration = service.getDuration(idFrom, idTo, stationTime, integrationTime);
+		LOG.info("Chamada /bestRouteTime finalizada");
+		return toResults(duration);
 	}
 	
 	private List<StationResult> toResults(List<Stations> stations){

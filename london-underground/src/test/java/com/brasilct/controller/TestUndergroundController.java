@@ -46,7 +46,7 @@ public class TestUndergroundController {
     }
 
 	@Test
-	public void findRoute() throws Exception{
+	public void findRouteBetweenActonTownAndHammersmith() throws Exception{
 		mockMvc.perform(get("/route/1/110"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(contentType))
@@ -55,7 +55,7 @@ public class TestUndergroundController {
 	}
 	
 	@Test
-	public void getBestRouteTime() throws Exception{
+	public void findBestRouteBetweenActonTownAndHammersmith() throws Exception{
 		mockMvc.perform(get("/bestRoute/1/110"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(contentType))
@@ -66,11 +66,65 @@ public class TestUndergroundController {
 	}
 	
 	@Test
-	public void findBestRoute() throws Exception{
+	public void getBestRouteTimeBetweenActonTownAndHammersmith() throws Exception{
 		mockMvc.perform(get("/bestRouteTime/1/110/3/12"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(contentType))
-			.andExpect(jsonPath("$.time", is(9)));
+			.andExpect(jsonPath("$.time", is(6)));
+	}
+	
+	@Test
+	public void findRouteIntegrationBetweenActonTownAndEastActon() throws Exception{
+		mockMvc.perform(get("/route/1/76"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(contentType))
+			.andExpect(jsonPath("$[0].name", is("Acton Town")))
+			.andExpect(jsonPath("$[(@.length-1)].name", is("East Acton")));
+	}
+	
+	@Test
+	public void findBestRouteIntegrationBetweenActonTownAndEastActon() throws Exception{
+		mockMvc.perform(get("/bestRoute/1/76"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(contentType))
+			.andExpect(jsonPath("$", hasSize(6)))
+			.andExpect(jsonPath("$[0].name", is("Acton Town")))
+			.andExpect(jsonPath("$[5].name", is("East Acton")));
+	}
+	
+	@Test
+	public void getBestRouteTimeIntegrationBetweenActonTownAndEastActon() throws Exception{
+		mockMvc.perform(get("/bestRouteTime/1/76/3/12"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(contentType))
+			.andExpect(jsonPath("$.time", is(24)));
+	}
+	
+	@Test
+	public void findRouteIntegrationBetweenKilburnParkAndHollandPark() throws Exception{
+		mockMvc.perform(get("/route/143/127"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(contentType))
+			.andExpect(jsonPath("$[0].name", is("Kilburn Park")))
+			.andExpect(jsonPath("$[(@.length-1)].name", is("Holland Park")));
+	}
+	
+	@Test
+	public void findBestRouteIntegrationBetweenKilburnParkAndHollandPark() throws Exception{
+		mockMvc.perform(get("/bestRoute/143/127"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(contentType))
+			.andExpect(jsonPath("$", hasSize(7)))
+			.andExpect(jsonPath("$[0].name", is("Kilburn Park")))
+			.andExpect(jsonPath("$[6].name", is("Holland Park")));
+	}
+	
+	@Test
+	public void getBestRouteTimeIntegrationBetweenKilburnParkAndHollandPark() throws Exception{
+		mockMvc.perform(get("/bestRouteTime/143/127/3/12"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(contentType))
+			.andExpect(jsonPath("$.time", is(36)));
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.brasilct.service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class StationsServiceImpl implements StationsService{
 		Stations stationFrom = findStation(from);
 		Stations stationTo = findStation(to);
 		List<RoutesSuccessWay> routes = getRoutes(stationFrom, stationTo);
+		LOG.info("Total Routes: {}", routes.size());
 		for(RoutesSuccessWay route : routes){
 			StationsNavigator navigator = new SingleStationsNavigator(repository, route.getWays());
 			if(navigator.find(stationFrom, stationTo)){
@@ -55,17 +57,26 @@ public class StationsServiceImpl implements StationsService{
 		Stations stationFrom = findStation(from);
 		Stations stationTo = findStation(to);
 		List<RoutesSuccessWay> routes = getRoutes(stationFrom, stationTo);
+		
+		Collections.sort(routes, new Comparator<RoutesSuccessWay>() {
+			@Override
+			public int compare(RoutesSuccessWay o1, RoutesSuccessWay o2) {
+				return Integer.valueOf(o1.getWays().size()).compareTo(o2.getWays().size());
+			}
+		});
 		List<StationsSuccessWay> ways = new LinkedList<StationsSuccessWay>();
+		StationsSuccessWay shortWay = null;
 		for(RoutesSuccessWay route : routes){
-			StationsNavigator navigator = new ShortStationsNavigator(repository, route.getWays());
+			StationsNavigator navigator = new ShortStationsNavigator(repository, route.getWays(), shortWay);
 			if(navigator.find(stationFrom, stationTo)){
 				ways.add(navigator.getWays().get(0));
+				Collections.sort(ways, StationsSuccessWay.getComparator());
+				shortWay = ways.get(0);
 			}
 		}
 		
-		if(!ways.isEmpty()){
-			Collections.sort(ways, StationsSuccessWay.getComparator());
-			return ways.get(0);
+		if(shortWay != null){
+			return shortWay;
 		}
 		
 		throw new RuntimeException("Não foi possível localizar uma rota entre essas estações");	
@@ -82,25 +93,24 @@ public class StationsServiceImpl implements StationsService{
 		if(shortWay instanceof StationsSuccessWay){
 			integrationQuantity = ((StationsSuccessWay) shortWay).getIntegrationsQuantity();
 		}
-		return stationsQuantity * stationTime 
+		LOG.info("Get Duratiom -> Stations: QT [{}] - Single Time[{}]", stationsQuantity, stationTime);
+		LOG.info("Get Duratiom -> Integrations: QT [{}] - Single Time[{}]", integrationQuantity, integrationTime);
+		return (stationsQuantity -1 - integrationQuantity ) * stationTime 
 			+  integrationQuantity * integrationTime;
 	}
 
 	private List<RoutesSuccessWay> getRoutes(Stations from, Stations to){
 		LOG.info("Find Routes");
-		List<RoutesSuccessWay> ways = new LinkedList<RoutesSuccessWay>();
 		RoutesNavigator navigator = new RoutesNavigator(repository);
 		List<Routes> routesFrom = repository.findRoutesByStation(from);
 		List<Routes> routesTo = repository.findRoutesByStation(to);
 		
 		for(Routes routeFrom : routesFrom){
 			for(Routes routeTo : routesTo){
-				if(navigator.find(routeFrom, routeTo)){
-					ways.addAll(navigator.getWays());
-				}
+				navigator.find(routeFrom, routeTo);
 			}
 		}
-		return ways;
+		return navigator.getWays();
 	}
 	
 	private Stations findStation(Integer id){
