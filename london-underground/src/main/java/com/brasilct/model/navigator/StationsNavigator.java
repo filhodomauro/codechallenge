@@ -117,6 +117,8 @@ public abstract class StationsNavigator extends DefaultNavigator<Stations, Stati
 		Cardinals orientationLatitude = Cardinals.fromLatitudeDiff(latitudeDiff);
 		Cardinals orientationLongitude = Cardinals.fromLongitudeDiff(longitudeDiff);
 		
+		latitudeDiff = latitudeDiff.compareTo(0d) >= 0 ? latitudeDiff : latitudeDiff * -1;
+		longitudeDiff = longitudeDiff.compareTo(0d) >= 0 ? longitudeDiff : longitudeDiff * -1;
 		List<Cardinals> cardinalsReferente = new LinkedList<Cardinals>();
 		if(latitudeDiff < longitudeDiff){
 			cardinalsReferente.add(orientationLongitude);

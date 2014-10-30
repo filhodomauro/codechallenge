@@ -9,10 +9,10 @@ import org.springframework.data.domain.Sort.Order;
  *
  */
 public enum Cardinals {
-	NORTH(new Order(Sort.Direction.ASC, "longitude")),
-	SOUTH(new Order(Sort.Direction.DESC, "longitude")),
-	EAST(new Order(Sort.Direction.ASC, "latitude")),
-	WEST(new Order(Sort.Direction.DESC, "latitude"));
+	NORTH(new Order(Sort.Direction.DESC, "latitude")),
+	SOUTH(new Order(Sort.Direction.ASC, "latitude")),
+	EAST(new Order(Sort.Direction.DESC, "longitude")),
+	WEST(new Order(Sort.Direction.ASC, "longitude"));
 	
 	private Order order;
 	
@@ -25,7 +25,7 @@ public enum Cardinals {
 	}
 	
 	public static Cardinals fromLatitudeDiff (double latitudeDiff){
-		if(latitudeDiff > 0){
+		if(latitudeDiff < 0){
 			return NORTH;
 		} else {
 			return SOUTH;

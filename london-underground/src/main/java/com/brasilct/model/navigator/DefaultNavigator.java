@@ -27,7 +27,6 @@ public abstract class DefaultNavigator<T,K extends SuccessWay<?>> implements Nav
 	
 	@Override
 	public boolean find(T from, T to) {
-		LOG.info("Finding...");
 		go(from, null, to);
 		return !getWays().isEmpty();
 	}

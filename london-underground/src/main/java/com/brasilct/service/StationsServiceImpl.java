@@ -57,7 +57,7 @@ public class StationsServiceImpl implements StationsService{
 		Stations stationFrom = findStation(from);
 		Stations stationTo = findStation(to);
 		List<RoutesSuccessWay> routes = getRoutes(stationFrom, stationTo);
-		
+		LOG.info("Total Route Ways: {}", routes.size());
 		Collections.sort(routes, new Comparator<RoutesSuccessWay>() {
 			@Override
 			public int compare(RoutesSuccessWay o1, RoutesSuccessWay o2) {
